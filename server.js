@@ -36,8 +36,7 @@ app.post(
     try {
       const dados = req.body;
       const imagem = req.file;
-      console.log("Dados:", dados);
-      console.log("Imagem:", imagem);
+
       await enviarEmailFiscalizacao(dados, imagem);
       if (imagem?.path) {
         await fs.promises.unlink(imagem.path);

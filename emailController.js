@@ -1,7 +1,7 @@
-const nodemailer = require('nodemailer');
-const fs = require('fs');
-const path = require('path');
-require('dotenv/config');
+const nodemailer = require("nodemailer");
+const fs = require("fs");
+const path = require("path");
+require("dotenv/config");
 
 async function enviarEmailObra(dados, imagem) {
   const {
@@ -14,8 +14,10 @@ async function enviarEmailObra(dados, imagem) {
     destinatario,
   } = dados;
 
-  const dataInicioFormatada = new Date(dataInicio).toLocaleDateString('pt-BR');
-  const dataConclusaoFormatada = new Date(previsaoConclusao).toLocaleDateString('pt-BR');
+  const dataInicioFormatada = new Date(dataInicio).toLocaleDateString("pt-BR");
+  const dataConclusaoFormatada = new Date(previsaoConclusao).toLocaleDateString(
+    "pt-BR"
+  );
 
   const transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
@@ -37,7 +39,8 @@ async function enviarEmailObra(dados, imagem) {
       <li><strong>Data de Início:</strong> ${dataInicioFormatada}</li>
       <li><strong>Previsão de Conclusão:</strong> ${dataConclusaoFormatada}</li>
     </ul>
-    <p><strong>Imagem:</strong> em anexo.</p>
+    <p><strong>Imagem:</strong></p>
+    <img src="cid:imagemObra" style="max-width: 500px;" />
   `;
 
   const mailOptions = {
@@ -48,10 +51,13 @@ async function enviarEmailObra(dados, imagem) {
     attachments: [
       {
         filename: imagem.originalname,
-        path: imagem.path,
+        path: path.resolve(imagem.path),
+        contentType: imagem.mimetype || "image/jpeg",
+        cid: "imagemObra"
       },
     ],
   };
+  console.log("Imagem:", mailOptions.attachments);
 
   await transporter.sendMail(mailOptions);
 }
@@ -59,7 +65,7 @@ async function enviarEmailObra(dados, imagem) {
 async function enviarEmailFiscalizacao(dados, imagem) {
   const { data, status, observacoes, local, destinatario, nomeObra } = dados;
 
-  const dataFormatada = new Date(data).toLocaleDateString('pt-BR');
+  const dataFormatada = new Date(data).toLocaleDateString("pt-BR");
 
   const html = `
     <h2>📋 Fiscalização: ${nomeObra}</h2>
@@ -69,7 +75,8 @@ async function enviarEmailFiscalizacao(dados, imagem) {
       <li><strong>Local:</strong> ${local}</li>
       <li><strong>Observações:</strong> ${observacoes}</li>
     </ul>
-    <p><strong>Imagem:</strong> em anexo.</p>
+    <p><strong>Imagem:</strong></p>
+    <img src="cid:imagemFiscal" style="max-width: 500px;" />
   `;
 
   const transporter = nodemailer.createTransport({
@@ -83,7 +90,14 @@ async function enviarEmailFiscalizacao(dados, imagem) {
   });
 
   const attachments = imagem
-    ? [{ filename: imagem.originalname, path: imagem.path }]
+    ? [
+        {
+          filename: imagem.originalname,
+          path: path.resolve(imagem.path),
+          contentType: imagem.mimetype || "image/jpeg",
+          cid: "imagemFiscal"
+        },
+      ]
     : [];
 
   await transporter.sendMail({
@@ -94,6 +108,5 @@ async function enviarEmailFiscalizacao(dados, imagem) {
     attachments,
   });
 }
-
 
 module.exports = { enviarEmailObra, enviarEmailFiscalizacao };
