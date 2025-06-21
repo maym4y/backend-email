@@ -1,0 +1,33 @@
+{
+  "name": "backend-email",
+  "version": "1.0.0",
+  "description": "brief backend to send automatic emails",
+  "main": "emailController.js",
+  "scripts": {
+    "test": "node test",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/maym4y/backend-email.git"
+  },
+  "keywords": [
+    "email",
+    "backend",
+    "node",
+    "nodemail"
+  ],
+  "author": "Mayara Almeida",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/maym4y/backend-email/issues"
+  },
+  "homepage": "https://github.com/maym4y/backend-email#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "multer": "^2.0.1",
+    "nodemailer": "^7.0.3"
+  }
+}
