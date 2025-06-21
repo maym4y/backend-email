@@ -14,6 +14,9 @@ async function enviarEmailObra(dados, imagem) {
     destinatario,
   } = dados;
 
+  const dataInicioFormatada = new Date(dataInicio).toLocaleDateString('pt-BR');
+  const dataConclusaoFormatada = new Date(previsaoConclusao).toLocaleDateString('pt-BR');
+
   const transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
     port: process.env.EMAIL_PORT,
@@ -31,8 +34,8 @@ async function enviarEmailObra(dados, imagem) {
       <li><strong>Responsável:</strong> ${responsavel}</li>
       <li><strong>Local:</strong> ${local}</li>
       <li><strong>Descrição:</strong> ${descricao}</li>
-      <li><strong>Data de Início:</strong> ${dataInicio}</li>
-      <li><strong>Previsão de Conclusão:</strong> ${previsaoConclusao}</li>
+      <li><strong>Data de Início:</strong> ${dataInicioFormatada}</li>
+      <li><strong>Previsão de Conclusão:</strong> ${dataConclusaoFormatada}</li>
     </ul>
     <p><strong>Imagem:</strong> em anexo.</p>
   `;
@@ -54,14 +57,16 @@ async function enviarEmailObra(dados, imagem) {
 }
 
 async function enviarEmailFiscalizacao(dados, imagem) {
-  const { data, status, observacoes, localizacao, destinatario } = dados;
+  const { data, status, observacoes, local, destinatario, nomeObra } = dados;
+
+  const dataFormatada = new Date(data).toLocaleDateString('pt-BR');
 
   const html = `
-    <h2>📋 Fiscalização</h2>
+    <h2>📋 Fiscalização: ${nomeObra}</h2>
     <ul>
-      <li><strong>Data:</strong> ${data}</li>
+      <li><strong>Data:</strong> ${dataFormatada}</li>
       <li><strong>Status:</strong> ${status}</li>
-      <li><strong>Local:</strong> ${localizacao}</li>
+      <li><strong>Local:</strong> ${local}</li>
       <li><strong>Observações:</strong> ${observacoes}</li>
     </ul>
     <p><strong>Imagem:</strong> em anexo.</p>
@@ -84,7 +89,7 @@ async function enviarEmailFiscalizacao(dados, imagem) {
   await transporter.sendMail({
     from: process.env.EMAIL_USER,
     to: destinatario,
-    subject: `Fiscalização: ${data}`,
+    subject: `Fiscalização: ${nomeObra}`,
     html,
     attachments,
   });
