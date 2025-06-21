@@ -1,7 +1,7 @@
-// emailController.js
 const nodemailer = require('nodemailer');
 const fs = require('fs');
 const path = require('path');
+require('dotenv/config');
 
 async function enviarEmailObra(dados, imagem) {
   const {
@@ -14,14 +14,13 @@ async function enviarEmailObra(dados, imagem) {
     destinatario,
   } = dados;
 
-  // Configuração do transporte SMTP
   const transporter = nodemailer.createTransport({
-    host: "",
-    port: "",
+    host: process.env.EMAIL_HOST,
+    port: process.env.EMAIL_PORT,
     secure: false,
     auth: {
-      user: 'SEU_EMAIL@gmail.com',
-      pass: 'SENHA_DO_APLICATIVO', // use app password (não senha pessoal)
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
     },
   });
 
@@ -39,14 +38,14 @@ async function enviarEmailObra(dados, imagem) {
   `;
 
   const mailOptions = {
-    from: 'SEU_EMAIL@gmail.com',
+    from: process.env.EMAIL_USER,
     to: destinatario,
     subject: `Obra: ${nome}`,
     html: html,
     attachments: [
       {
         filename: imagem.originalname,
-        path: path.resolve(imagem.path),
+        path: imagem.path,
       },
     ],
   };
@@ -54,4 +53,42 @@ async function enviarEmailObra(dados, imagem) {
   await transporter.sendMail(mailOptions);
 }
 
-module.exports = { enviarEmailObra };
+async function enviarEmailFiscalizacao(dados, imagem) {
+  const { data, status, observacoes, localizacao, destinatario } = dados;
+
+  const html = `
+    <h2>📋 Fiscalização</h2>
+    <ul>
+      <li><strong>Data:</strong> ${data}</li>
+      <li><strong>Status:</strong> ${status}</li>
+      <li><strong>Local:</strong> ${localizacao}</li>
+      <li><strong>Observações:</strong> ${observacoes}</li>
+    </ul>
+    <p><strong>Imagem:</strong> em anexo.</p>
+  `;
+
+  const transporter = nodemailer.createTransport({
+    host: process.env.EMAIL_HOST,
+    port: process.env.EMAIL_PORT,
+    secure: false,
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
+
+  const attachments = imagem
+    ? [{ filename: imagem.originalname, path: imagem.path }]
+    : [];
+
+  await transporter.sendMail({
+    from: process.env.EMAIL_USER,
+    to: destinatario,
+    subject: `Fiscalização: ${data}`,
+    html,
+    attachments,
+  });
+}
+
+
+module.exports = { enviarEmailObra, enviarEmailFiscalizacao };
